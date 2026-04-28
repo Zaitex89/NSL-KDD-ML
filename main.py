@@ -1,5 +1,6 @@
 import pandas as pd
 from clean_data import clean_data
+from eda import perform_eda 
 
 columns = [
     "duration", "protocol_type", "service", "flag", "src_bytes",
@@ -24,3 +25,5 @@ df = clean_data(df)
 
 print(df.columns.tolist())
 print(df["label"].value_counts())
+
+df = perform_eda(df)
