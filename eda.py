@@ -2,85 +2,108 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+from sklearn.decomposition import PCA
+
+# Global stil
+sns.set_theme(style="darkgrid")
+FIGSIZE = (10, 6)
+
+
+def _plot_label_distribution(df):
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+    # Attacktyper
+    df["label"].value_counts().head(10).plot(kind="bar", ax=axes[0], color="steelblue")
+    axes[0].set_title("Topp 10 attacktyper")
+    axes[0].set_ylabel("Antal")
+    axes[0].tick_params(axis="x", rotation=45)
+
+    # Normal vs Attack
+    df["label_binary"].value_counts().plot(
+        kind="pie", ax=axes[1],
+        labels=["Attack", "Normal"],
+        autopct="%1.1f%%",
+        colors=["tomato", "steelblue"]
+    )
+    axes[1].set_title("Normal vs Attack")
+    axes[1].set_ylabel("")
+
+    plt.tight_layout()
+    plt.savefig("label_distribution.png")
+    plt.show()
+
+
+def _plot_correlation_heatmap(df):
+    numeric_df = df.select_dtypes(include=[np.number]).drop(
+        columns=["label_binary"], errors="ignore"
+    )
+    # Välj de 20 mest varierande kolumnerna för läsbarhet
+    top_cols = numeric_df.std().nlargest(20).index
+    corr = numeric_df[top_cols].corr()
+
+    plt.figure(figsize=(12, 8))
+    sns.heatmap(corr, cmap="coolwarm", annot=False, linewidths=0.5, center=0)
+    plt.title("Korrelationsmatris (topp 20 variabler)")
+    plt.tight_layout()
+    plt.savefig("correlation_heatmap.png")
+    plt.show()
+
+
+def _plot_pca(df):
+    num_cols = [
+        c for c in df.select_dtypes(include=["float64", "int64"]).columns
+        if "label" not in c
+    ]
+
+    pca = PCA(n_components=2)
+    pca_result = pca.fit_transform(df[num_cols])
+
+    plt.figure(figsize=(8, 6))
+    scatter = plt.scatter(
+        pca_result[:, 0], pca_result[:, 1],
+        c=df["label_binary"], cmap="coolwarm",
+        alpha=0.3, s=1
+    )
+    plt.colorbar(scatter, label="0 = Normal, 1 = Attack")
+    plt.title(f"PCA - Normal vs Attack\nFörklarad varians: {pca.explained_variance_ratio_.round(3)}")
+    plt.xlabel("PC1")
+    plt.ylabel("PC2")
+    plt.tight_layout()
+    plt.savefig("pca.png")
+    plt.show()
+
 
 def perform_eda(df):
-    """
-    Exploratory Data Analysis för NSL-KDD efter cleaning.
-    """
-    print("="*70)
-    print("🔍 EXPLORATORY DATA ANALYSIS")
-    print("="*70)
+    print("=" * 60)
+    print("EXPLORATORY DATA ANALYSIS - NSL-KDD")
+    print("=" * 60)
 
-    # 1. Grundinformation
-    print(f"Dataset shape: {df.shape}")
-    print(f"Total features: {df.shape[1]}")
-
-    # 2. Missing & Duplicates
-    print(f"\nMissing Values: {df.isnull().sum().sum()}")
+    # Grundinfo
+    print(f"\nShape:      {df.shape}")
+    print(f"Features:   {df.shape[1]}")
+    print(f"Missing:    {df.isnull().sum().sum()}")
     print(f"Duplicates: {df.duplicated().sum()}")
 
-    # 3. Label-fördelning
-    print("\n" + "="*50)
-    print("LABEL FÖRDELNING")
-    print("="*50)
-    print(df['label'].value_counts().head(15))
-    
-    # Normal vs Attack
-    df['attack_type'] = df['label'].apply(lambda x: 'normal' if x == 'normal' else 'attack')
+    # Labelfördelning
+    print("\n--- Labelfördelning ---")
+    print(df["label"].value_counts().head(15).to_string())
     print("\nNormal vs Attack (%):")
-    print(df['attack_type'].value_counts(normalize=True).round(3) * 100)
+    print((df["label_binary"].value_counts(normalize=True) * 100).round(1).to_string())
 
-    # Plot label distribution
-    plt.figure(figsize=(10, 6))
-    df['label'].value_counts().head(10).plot(kind='bar')
-    plt.title('Topp 10 Attack Typer')
-    plt.ylabel('Antal')
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.savefig('label_distribution.png')
-    plt.show()
+    # Numerisk statistik
+    print("\n--- Numerisk statistik (urval) ---")
+    print(df.describe().iloc[:, :8].round(2).to_string())
 
-    # 4. Numerisk statistik
-    print("\n" + "="*50)
-    print("NUMERISK STATISTIK (första 10 kolumner)")
-    print("="*50)
-    print(df.describe().iloc[:, :10].round(2))   # visa bara några kolumner
+    # Protokoll-encoding
+    print("\n--- Protokoll (one-hot) ---")
+    for col in [c for c in df.columns if c.startswith("protocol_type_")]:
+        print(f"  {col}: {int(df[col].sum())}")
 
-    # 5. Kategoriska variabler - HANTERA ONE-HOT ENCODING
-    print("\n" + "="*50)
-    print("KATEGORISKA VARIABLER (efter encoding)")
-    print("="*50)
+    # Grafer
+    print("\nSkapar grafer...")
+    _plot_label_distribution(df)
+    _plot_correlation_heatmap(df)
+    _plot_pca(df)
 
-    # Kolla vilka dummy-kolumner som finns
-    protocol_cols = [col for col in df.columns if col.startswith('protocol_type_')]
-    flag_cols = [col for col in df.columns if col.startswith('flag_')]
-
-    if protocol_cols:
-        print("Protocol Type (one-hot):")
-        for col in protocol_cols:
-            print(f"  {col}: {df[col].sum()}")
-
-    if flag_cols:
-        print("\nFlag (one-hot):")
-        for col in flag_cols:
-            print(f"  {col}: {df[col].sum()}")
-
-    # Service (om den är LabelEncoded)
-    if 'service' in df.columns:
-        print("\nService (topp 10):")
-        print(df['service'].value_counts().head(10))
-
-    # 6. Correlation Heatmap (endast numeriska)
-    print("\nSkapar correlation heatmap...")
-    numeric_df = df.select_dtypes(include=[np.number]).drop(columns=['label_binary'], errors='ignore')
-    
-    plt.figure(figsize=(12, 8))
-    corr = numeric_df.corr()
-    sns.heatmap(corr, cmap='coolwarm', annot=False)
-    plt.title('Correlation Heatmap')
-    plt.tight_layout()
-    plt.savefig('correlation_heatmap.png')
-    plt.show()
-
-    print("\n✅ EDA klar! Grafer sparade som PNG-filer i mappen.")
+    print("\nEDA klar! Grafer sparade som PNG.")
     return df
