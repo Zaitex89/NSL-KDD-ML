@@ -29,3 +29,4 @@ print(df["label"].value_counts())
 
 df = perform_eda(df)
 df, best_k = perform_ml(df)
+df = perform_ml(df)
