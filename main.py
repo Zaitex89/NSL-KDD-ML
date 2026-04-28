@@ -1,6 +1,7 @@
 import pandas as pd
 from clean_data import clean_data
 from eda import perform_eda 
+from ml import perform_ml
 
 columns = [
     "duration", "protocol_type", "service", "flag", "src_bytes",
@@ -27,3 +28,4 @@ print(df.columns.tolist())
 print(df["label"].value_counts())
 
 df = perform_eda(df)
+df, best_k = perform_ml(df)
