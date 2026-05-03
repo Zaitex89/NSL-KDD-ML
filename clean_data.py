@@ -6,11 +6,7 @@ def clean_data(df):
     # Drop difficulty
     df.drop(columns=["difficulty"], inplace=True)
 
-    # Missing values
-    print(f"Missing Values: {df.isnull().sum()}")
-
     # Duplicates
-    print(f"Duplicates: {df.duplicated().sum()}")
     df.drop_duplicates(inplace=True)
 
     # Handles categorical columns, into int

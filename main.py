@@ -19,13 +19,8 @@ columns = [
 ]
 
 df = pd.read_csv("KDDTrain+.txt", header=None, names=columns)
-print(df.shape)
-print(df.head())
-
 df = clean_data(df)
 
-print(df.columns.tolist())
-print(df["label"].value_counts())
 
 df = perform_eda(df)
 df, best_k = perform_ml(df)
