@@ -13,7 +13,6 @@ venv/
 
 # Data & models
 *.csv
-*.txt
 *.pkl
 *.joblib
 
