@@ -16,6 +16,21 @@ A machine learning and exploratory data analysis (EDA) project built using the *
 
 
 
+## Preview
+
+### Dataset Analysis Preview
+
+![Preview 1](assets/preview.png)
+
+
+### Graph Visualization Preview
+
+![Preview 2](assets/preview1.png)
+
+![Preview 3](assets/preview2.png)
+
+
+
 ## Dataset
 
 This project uses the **NSL-KDD Dataset**, an improved version of the KDD Cup 1999 dataset commonly used for:
@@ -111,6 +126,8 @@ NSL-KDD-ML/
 │
 ├── data/                 # Dataset files
 ├── graphs/               # Generated visualizations
+├── preview1.jpg          # README preview image
+├── preview2.jpg          # README preview image
 ├── main.py               # Main application entry point
 ├── requirements.txt      # Project dependencies
 └── README.md             # Project documentation
@@ -126,4 +143,14 @@ NSL-KDD-ML/
 - Matplotlib
 - Seaborn
 - Scikit-learn
+
+
+
+## Future Improvements
+
+- Add model training pipeline
+- Support additional ML algorithms
+- Export graphs automatically
+- Improve UI/UX for graph navigation
+- Add real-time intrusion detection support
 

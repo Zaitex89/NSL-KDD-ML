@@ -4,7 +4,7 @@ import seaborn as sns
 import numpy as np
 from sklearn.decomposition import PCA
 
-# Global stil
+# Global style
 sns.set_theme(style="darkgrid")
 FIGSIZE = (10, 6)
 
@@ -12,7 +12,7 @@ FIGSIZE = (10, 6)
 def _plot_label_distribution(df):
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
-    # Attacktyper
+    # Attacktypes
     df["label"].value_counts().head(10).plot(kind="bar", ax=axes[0], color="steelblue")
     axes[0].set_title("Topp 10 attacktyper")
     axes[0].set_ylabel("Antal")
@@ -37,7 +37,7 @@ def _plot_correlation_heatmap(df):
     numeric_df = df.select_dtypes(include=[np.number]).drop(
         columns=["label_binary"], errors="ignore"
     )
-    # Välj de 20 mest varierande kolumnerna för läsbarhet
+    # Choose the top 20 most varying for readability
     top_cols = numeric_df.std().nlargest(20).index
     corr = numeric_df[top_cols].corr()
 
@@ -78,28 +78,28 @@ def perform_eda(df):
     print("EXPLORATORY DATA ANALYSIS - NSL-KDD")
     print("=" * 60)
 
-    # Grundinfo
+    # Basic info
     print(f"\nShape:      {df.shape}")
     print(f"Features:   {df.shape[1]}")
     print(f"Missing:    {df.isnull().sum().sum()}")
     print(f"Duplicates: {df.duplicated().sum()}")
 
-    # Labelfördelning
+    # Labels
     print("\n--- Labelfördelning ---")
     print(df["label"].value_counts().head(15).to_string())
     print("\nNormal vs Attack (%):")
     print((df["label_binary"].value_counts(normalize=True) * 100).round(1).to_string())
 
-    # Numerisk statistik
+    # Numerical stats
     print("\n--- Numerisk statistik (urval) ---")
     print(df.describe().iloc[:, :8].round(2).to_string())
 
-    # Protokoll-encoding
+    # Protocoll-encoding
     print("\n--- Protokoll (one-hot) ---")
     for col in [c for c in df.columns if c.startswith("protocol_type_")]:
         print(f"  {col}: {int(df[col].sum())}")
 
-    # Grafer
+    # Graphs
     print("\nSkapar grafer...")
     _plot_label_distribution(df)
     _plot_correlation_heatmap(df)
