@@ -119,22 +119,6 @@ The project may include visualizations such as:
 
 
 
-## Project Structure
-
-```text
-NSL-KDD-ML/
-│
-├── data/                 # Dataset files
-├── graphs/               # Generated visualizations
-├── preview1.jpg          # README preview image
-├── preview2.jpg          # README preview image
-├── main.py               # Main application entry point
-├── requirements.txt      # Project dependencies
-└── README.md             # Project documentation
-```
-
-
-
 ## Technologies Used
 
 - Python
